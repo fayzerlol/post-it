@@ -1,0 +1,126 @@
+/* Estilo Responsivo para TVs */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    font-size: 2.5rem; /* Títulos maiores */
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 1600px; /* Aumentado para telas grandes */
+    margin: auto;
+    padding: 20px;
+}
+
+/* Cards para 6 por linha */
+.card-item {
+    flex: 1 1 calc(16.66% - 20px); /* Ajusta para 6 cards por linha */
+    max-width: calc(16.66% - 20px); /* Limita a largura dos cards */
+    margin: 10px; /* Espaçamento entre os cards */
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    background-color: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;}
+
+.card-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+}
+
+.status-tag {
+    padding: 8px 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 12px;
+    margin-bottom: 10px;
+}
+
+.status-pendente {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.status-completo {
+    background-color: #27ae60;
+    color: white;
+}
+
+/* Layout Flexível */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around; /* Ajusta os cards no centro */
+    align-items: flex-start;
+}
+
+/* Botões de ação */
+.btn-action {
+    font-size: 1rem;
+    padding: 10px 15px;
+    border-radius: 8px;
+    background-color: #2980b9;
+    color: white;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    text-transform: uppercase;
+}
+
+.btn-action:hover {
+    background-color: #1c5985;
+}
+
+/* Títulos e textos nos cards */
+.card-title {
+    font-size: 1.5rem;
+    color: #34495e;
+    text-align: center; /* Centraliza os títulos */
+}
+
+.card-content p {
+    font-size: 1.2rem; /* Texto maior para legibilidade */
+    color: #7f8c8d;
+    line-height: 1.6;
+}
+
+/* Ocupação total da tela */
+html, body {
+    height: 100%;
+    overflow-x: hidden; /* Evita rolagem horizontal */
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 1200px) {
+    .card-item {
+        flex: 1 1 calc(25% - 30px); /* Ajusta para 4 cards por linha */
+        max-width: calc(25% - 30px);
+    }
+}
+
+@media (max-width: 992px) {
+    .card-item {
+        flex: 1 1 calc(33.33% - 30px); /* Ajusta para 3 cards por linha */
+        max-width: calc(33.33% - 30px);
+    }
+}
+
+@media (max-width: 768px) {
+    .card-item {
+        flex: 1 1 calc(50% - 30px); /* Ajusta para 2 cards por linha */
+        max-width: calc(50% - 30px);
+    }
+}
+
+@media (max-width: 576px) {
+    .card-item {
+        flex: 1 1 calc(100% - 30px); /* Ajusta para 1 card por linha */
+        max-width: calc(100% - 30px);
+    }
+}

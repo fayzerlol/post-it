@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Quadro{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Editar Quadro</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="nome_quadro" class="form-label">Nome do Quadro</label>
+            <input type="text" class="form-control" id="nome_quadro" name="nome_quadro" value="{{ quadro.nome }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="coluna_status" class="form-label">Coluna de Status</label>
+            <select class="form-select" id="coluna_status" name="coluna_status">
+                <option value="">Selecione uma coluna</option>
+                {% for coluna in colunas_disponiveis %}
+                <option value="{{ coluna }}" {% if quadro.coluna_status == coluna %}selected{% endif %}>{{ coluna }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="coluna_data" class="form-label">Coluna de Data</label>
+            <select class="form-select" id="coluna_data" name="coluna_data">
+                <option value="">Selecione uma coluna</option>
+                {% for coluna in colunas_disponiveis %}
+                <option value="{{ coluna }}" {% if quadro.coluna_data == coluna %}selected{% endif %}>{{ coluna }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+    </form>
+    
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% block content %}
+<h2>Dados Filtrados</h2>
+<table id="dados" class="display">
+    {{ dados|safe }}  <!-- Exibe a tabela gerada com pandas -->
+</table>
+<a href="{% url 'upload_planilha' %}" class="btn btn-primary mt-3">Voltar ao Upload</a>
+
+<form method="post" action="{% url 'exportar_dados' %}">
+    {% csrf_token %}
+    <!-- Reenviar as colunas selecionadas -->
+    {% for coluna in colunas_selecionadas %}
+        <input type="hidden" name="colunas" value="{{ coluna }}">
+    {% endfor %}
+    <button type="submit" class="btn btn-success mt-3">Exportar Dados</button>
+</form>
+
+<script>
+    $(document).ready(function() {
+        $('#dados').DataTable();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Criar Novo Quadro{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Criar Novo Quadro</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="nome_quadro" class="form-label">Nome do Quadro</label>
+            <input type="text" class="form-control" id="nome_quadro" name="nome_quadro" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Criar Quadro</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Selecionar Colunas{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Selecionar Colunas</h1>
+    <form method="post" action="{% url 'salvar_colunas' %}">
+        {% csrf_token %}
+        <input type="hidden" name="quadro_id" value="{{ quadro_id }}">
+        <input type="hidden" name="planilha_url" value="{{ planilha_url }}">
+
+        <div class="mb-3">
+            <label for="coluna_identificadora" class="form-label">Coluna Identificadora</label>
+            <select class="form-select" id="coluna_identificadora" name="coluna_identificadora" required>
+                {% for coluna in colunas %}
+                    <option value="{{ coluna }}">{{ coluna }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Colunas para Importar:</h3>
+                {% for coluna in colunas %}
+                    <div>
+                        <input type="checkbox" id="coluna_{{ forloop.counter }}" name="colunas_importadas" value="{{ coluna }}">
+                        <label for="coluna_{{ forloop.counter }}">{{ coluna }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <h3>Colunas para Mostrar no Card:</h3>
+                {% for coluna in colunas %}
+                    <div>
+                        <input type="checkbox" id="coluna_card_{{ forloop.counter }}" name="colunas_no_card" value="{{ coluna }}">
+                        <label for="coluna_card_{{ forloop.counter }}">{{ coluna }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Salvar Colunas e Criar Cards</button>
+    </form>
+</div>
+{% endblock %}

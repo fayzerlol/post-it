@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cards</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Cards</h1>
+
+        <!-- Filter Section -->
+        <div class="mb-4">
+            <label for="filterColumn" class="form-label">Filtrar por:</label>
+            <select id="filterColumn" class="form-select">
+                <option value="">Selecione uma coluna</option>
+                <!-- Example dynamic options -->
+                <option value="tag">Tag</option>
+                <option value="cliente">Cliente</option>
+                <!-- Add more options dynamically based on available columns -->
+            </select>
+            <input type="text" id="filterValue" class="form-control mt-2" placeholder="Valor do filtro">
+            <button id="applyFilter" class="btn btn-primary mt-2">Aplicar Filtro</button>
+        </div>
+
+        <div class="row" id="cardsContainer">
+            {% for card in cards %}
+                <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ card.titulo }}</h5>
+                            <ul class="list-group list-group-flush">
+                                {% for coluna in quadro.colunas_no_card %}
+                                    <li class="list-group-item">
+                                        <strong>{{ coluna }}:</strong> {{ card.conteudo.get(coluna) }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#modal{{ card.id }}">
+                                Ver mais
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Modals for "Ver mais" functionality -->
+    {% for card in cards %}
+        <div class="modal fade" id="modal{{ card.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">{{ card.titulo }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        {% for key, value in card.conteudo.items %}
+                            <p><strong>{{ key }}:</strong> {{ value }}</p>
+                        {% endfor %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+</body>
+</html>

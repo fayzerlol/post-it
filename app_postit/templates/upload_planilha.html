@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload de Planilha{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Upload de Planilha</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="planilha" class="form-label">Selecione a Planilha</label>
+            <input type="file" class="form-control" id="planilha" name="planilha" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="quadro" class="form-label">Selecione um Quadro</label>
+            <select class="form-select" id="quadro_id" name="quadro_id" required>
+                {% for quadro in quadros %}
+                    <option value="{{ quadro.id }}">{{ quadro.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Enviar Planilha</button>
+    </form>
+</div>
+{% endblock %}

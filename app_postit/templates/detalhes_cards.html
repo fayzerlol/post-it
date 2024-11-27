@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes do Card{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h5>{{ card.titulo }}</h5>
+    </div>
+    <div class="card-body">
+        <p>{{ card.conteudo }}</p>
+    </div>
+</div>
+<a href="{% url 'detalhes_quadro' card.quadro.id %}" class="btn btn-primary">Voltar ao Quadro</a>
+{% endblock %}

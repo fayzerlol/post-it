@@ -1,0 +1,302 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ quadro.nome }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: {{ quadro.cor_background }};
+            color: {{ quadro.cor_fonte }};
+            font-size: {{ quadro.tamanho_fonte }};
+        }
+        .card {
+            background-color: {{ quadro.cor_cards }};
+            border: 2px solid {{ quadro.borda_cards }};
+            box-shadow: {{ quadro.sombra_cards }};
+        }
+        .card-title {
+            text-align: center;
+        }
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 15px;
+        }
+        .card-item {
+            flex: 1 1 calc(15% - 15px);
+            max-width: calc(15% - 15px);
+            min-width: 200px;
+        }
+        @media (max-width: 768px) {
+            .card-item {
+                flex: 1 1 calc(50% - 15px);
+            }
+        }
+        @media (max-width: 576px) {
+            .card-item {
+                flex: 1 1 calc(100% - 15px);
+            }
+        }
+        .vencido{
+            background-color: red;
+        }
+        .quase_vencido{
+            background-color: yellow;
+        }
+        .iniciado{
+            background-color: green;
+        }
+
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <img src="{% static 'img/fz3.png' %}?v={{ timestamp }}" alt="Logo" height="40">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'criar_quadro' %}">Criar Quadro</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'listar_quadros' %}">Listar Quadros</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'upload_planilha' %}">Upload Planilha</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1 class="mb-4">{{ quadro.nome }}</h1>
+
+        <!-- Botão para abrir o modal de personalização -->
+        <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#configModal">
+            Personalizar Quadro
+        </button>
+        
+        <!-- Botão para abrir modal de atualização -->
+        <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#atualizarPlanilhaModal">
+            Atualizar Planilha
+        </button>
+
+        <!-- Modal de Upload da Planilha -->
+        <div class="modal fade" id="atualizarPlanilhaModal" tabindex="-1" aria-labelledby="atualizarPlanilhaModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form method="POST" enctype="multipart/form-data" action="{% url 'atualizar_planilha' quadro.id %}">
+                        {% csrf_token %}
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="atualizarPlanilhaModalLabel">Atualizar Planilha</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="planilha" class="form-label">Selecione a nova planilha:</label>
+                                <input type="file" class="form-control" id="planilha" name="planilha" accept=".xlsx, .xls" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                            <button type="submit" class="btn btn-primary">Atualizar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Filtros -->
+        <div class="mb-4">
+            <label for="filterColumn" class="form-label">Filtrar por:</label>
+            <select id="filterColumn" class="form-select">
+                <option value="">Selecione uma coluna</option>
+                {% for coluna in colunas_importadas %}
+                    <option value="{{ coluna }}">{{ coluna }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" id="filterTextValue" class="form-control mt-2" placeholder="Digite o valor do filtro">
+            <button id="applyFilter" class="btn btn-primary mt-2">Aplicar Filtro</button>
+            <button id="clearFilter" class="btn btn-secondary mt-2">Limpar Filtros</button>
+        </div>
+
+<!-- Exibição dos Cards -->
+<div class="row" id="cardsContainer">
+    {% for card in cards %}
+    <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12 card-item 
+        {% if card.status_data == 'vencido' %}vencido{% elif card.status_data == 'quase_vencido' %}quase_vencido{% elif card.cor == 'verde' %}iniciado{% endif %}" 
+        data-json="{{ card.conteudo|escapejs }}">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ card.titulo }}</h5>
+                <ul class="list-group list-group-flush">
+                    {% for key, value in card.conteudo.items %}
+                        {% if key in quadro.colunas_no_card %}
+                        <li class="list-group-item">
+                            <strong>{{ key }}:</strong> {{ value }}
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+                <!-- Botão para abrir o modal do card -->
+                <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#modal{{ card.id }}">
+                    Ver mais
+                </button>
+            </div>
+        </div>
+    </div>
+
+            <!-- Modal de Detalhes do Card -->
+            <div class="modal fade" id="modal{{ card.id }}" tabindex="-1" aria-labelledby="modal{{ card.id }}Label" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modal{{ card.id }}Label">{{ card.titulo }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <ul class="list-group">
+                                {% for key, value in card.conteudo.items %}
+                                <li class="list-group-item">
+                                    <strong>{{ key }}:</strong> {{ value }}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Modal de Configuração -->
+    <div class="modal fade" id="configModal" tabindex="-1" aria-labelledby="configModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="configForm" method="post" action="{% url 'salvar_personalizado' quadro.id %}">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="configModalLabel">Personalizar Quadro</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="tamanhoFonte" class="form-label">Tamanho da Fonte</label>
+                            <input type="text" class="form-control" id="tamanhoFonte" name="tamanho_fonte" value="{{ quadro.tamanho_fonte }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="corBackground" class="form-label">Cor do Background</label>
+                            <input type="color" class="form-control" id="corBackground" name="cor_background" value="{{ quadro.cor_background }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="corFonte" class="form-label">Cor da Fonte</label>
+                            <input type="color" class="form-control" id="corFonte" name="cor_fonte" value="{{ quadro.cor_fonte }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="corCards" class="form-label">Cor dos Cards</label>
+                            <input type="color" class="form-control" id="corCards" name="cor_cards" value="{{ quadro.cor_cards }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="bordaCards" class="form-label">Cor da Borda dos Cards</label>
+                            <input type="color" class="form-control" id="bordaCards" name="borda_cards" value="{{ quadro.borda_cards }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="sombraCards" class="form-label">Sombra dos Cards (CSS)</label>
+                            <input type="text" class="form-control" id="sombraCards" name="sombra_cards" value="{{ quadro.sombra_cards }}">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const filterColumn = document.getElementById('filterColumn');
+            const filterTextValue = document.getElementById('filterTextValue');
+            const cards = document.querySelectorAll('.card-item');
+        
+            // Função para corrigir e processar JSON de maneira segura
+            function safeParseJSON(jsonString) {
+                try {
+                    const cleanedJson = jsonString
+                        .replace(/\\u0027/g, "'") // Substitui unicode para aspas simples
+                        .replace(/'/g, '"'); // Converte aspas simples para aspas duplas (JSON válido)
+        
+                    return JSON.parse(cleanedJson);
+                } catch (error) {
+                    console.error("Erro ao processar JSON no card:", jsonString, error);
+                    return null;
+                }
+            }
+        
+            // Função para aplicar o filtro
+            document.getElementById('applyFilter').addEventListener('click', function () {
+                const column = filterColumn.value.trim().toLowerCase().replace(/\s+/g, ''); // Normaliza a coluna
+                const value = filterTextValue.value.toLowerCase().trim(); // Obtém o valor digitado
+        
+                // Verifica se os campos estão preenchidos
+                if (!column || !value) {
+                    alert("Por favor, selecione uma coluna e insira um valor para o filtro.");
+                    return;
+                }
+        
+                // Itera sobre os cards e filtra com base no atributo `data-json`
+                cards.forEach(card => {
+                    const rawJson = card.dataset.json || '{}'; // Obtém o JSON bruto
+                    const cardData = safeParseJSON(rawJson); // Processa JSON
+                    if (!cardData) {
+                        card.style.display = 'none'; // Oculta cards com JSON inválido
+                        return;
+                    }
+        
+                    // Normaliza as chaves do JSON
+                    const normalizedCardData = {};
+                    for (const key in cardData) {
+                        normalizedCardData[key.toLowerCase().replace(/\s+/g, '')] = cardData[key];
+                    }
+        
+                    // Garante que o valor da coluna é convertido para string antes de comparar
+                    const cardValue = String(normalizedCardData[column] || '').toLowerCase();
+        
+                    // Verifica se o valor da coluna no card corresponde ao filtro
+                    if (cardValue.includes(value)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        
+            // Função para limpar os filtros
+            document.getElementById('clearFilter').addEventListener('click', function () {
+                // Reseta os campos de filtro
+                filterColumn.value = '';
+                filterTextValue.value = '';
+        
+                // Exibe todos os cards
+                cards.forEach(card => card.style.display = 'block');
+            });
+        });
+        
+    </script>
+    
+    
